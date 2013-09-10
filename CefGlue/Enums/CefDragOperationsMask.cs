@@ -10,6 +10,5 @@
         DragOperationMove = 16,
         DragOperationDelete = 32,
         DragOperationEvery = int.MaxValue
-
     }
 }

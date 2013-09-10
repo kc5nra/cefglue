@@ -84,5 +84,28 @@ namespace Xilium.CefGlue
         /// UR_FLAG_NO_DOWNLOAD_DATA flag is set on the request.
         /// </summary>
         protected abstract void OnDownloadData(CefUrlRequest request, Stream data);
+
+
+        private int get_auth_credentials(cef_urlrequest_client_t* self, int isProxy, cef_string_t* host, int port, cef_string_t* realm, cef_string_t* scheme, cef_auth_callback_t* callback)
+        {
+            CheckSelf(self);
+
+            var m_host = cef_string_t.ToString(host);
+            var m_realm = cef_string_t.ToString(realm);
+            var m_scheme = cef_string_t.ToString(scheme);
+            var m_callback = CefAuthCallback.FromNative(callback);
+
+            return GetAuthCredentials(isProxy != 0, m_host, port, m_realm, m_scheme, m_callback);
+        }
+
+        /// <summary>
+        /// Called on the IO thread when the browser needs credentials from the user.
+        /// |isProxy| indicates whether the host is a proxy server. |host| contains the
+        /// hostname and |port| contains the port number. Return true to continue the
+        /// request and call CefAuthCallback::Continue() when the authentication
+        /// information is available. Return false to cancel the request. This method
+        /// will only be called for requests initiated from the browser process.
+        /// </summary>
+        protected abstract int GetAuthCredentials(bool isProxy, string host, int port, string realm, string scheme, CefAuthCallback callback);
     }
 }

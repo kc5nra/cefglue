@@ -1,4 +1,4 @@
-// Copyright (c) 2010 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2013 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -26,50 +26,33 @@
 // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+// ---------------------------------------------------------------------------
+//
+// The contents of this file must follow a specific format in order to
+// support the CEF translator tool. See the translator.README.txt file in the
+// tools directory for more information.
+//
 
-
-#ifndef CEF_INCLUDE_INTERNAL_CEF_TYPES_LINUX_H_
-#define CEF_INCLUDE_INTERNAL_CEF_TYPES_LINUX_H_
+#ifndef CEF_INCLUDE_CEF_REQUEST_CONTEXT_HANDLER_H_
+#define CEF_INCLUDE_CEF_REQUEST_CONTEXT_HANDLER_H_
 #pragma once
 
-#include "include/internal/cef_build.h"
-
-#if defined(OS_LINUX)
-#include <gtk/gtk.h>
-#include "include/internal/cef_string.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-// Handle types.
-#define cef_cursor_handle_t void*
-#define cef_event_handle_t GdkEvent*
-#define cef_window_handle_t GtkWidget*
+#include "include/cef_base.h"
+#include "include/cef_cookie.h"
 
 ///
-// Structure representing CefExecuteProcess arguments.
+// Implement this interface to provide handler implementations.
 ///
-typedef struct _cef_main_args_t {
-  int argc;
-  char** argv;
-} cef_main_args_t;
+/*--cef(source=client,no_debugct_check)--*/
+class CefRequestContextHandler : public virtual CefBase {
+ public:
+  ///
+  // Called on the IO thread to retrieve the cookie manager. The global cookie
+  // manager will be used if this method returns NULL.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefCookieManager> GetCookieManager() { return NULL; }
+};
 
-///
-// Class representing window information.
-///
-typedef struct _cef_window_info_t {
-  // Pointer for the parent GtkBox widget.
-  cef_window_handle_t parent_widget;
-
-  // Pointer for the new browser widget.
-  cef_window_handle_t widget;
-} cef_window_info_t;
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif  // OS_LINUX
-
-#endif  // CEF_INCLUDE_INTERNAL_CEF_TYPES_LINUX_H_
+#endif  // CEF_INCLUDE_CEF_REQUEST_CONTEXT_HANDLER_H_

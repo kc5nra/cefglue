@@ -18,7 +18,6 @@ namespace Xilium.CefGlue.Interop
         internal IntPtr _on_resource_redirect;
         internal IntPtr _get_auth_credentials;
         internal IntPtr _on_quota_request;
-        internal IntPtr _get_cookie_manager;
         internal IntPtr _on_protocol_execution;
         internal IntPtr _on_before_plugin_load;
         internal IntPtr _on_certificate_error;
@@ -70,12 +69,6 @@ namespace Xilium.CefGlue.Interop
         [SuppressUnmanagedCodeSecurity]
         #endif
         internal delegate int on_quota_request_delegate(cef_request_handler_t* self, cef_browser_t* browser, cef_string_t* origin_url, long new_size, cef_quota_callback_t* callback);
-        
-        [UnmanagedFunctionPointer(libcef.CEF_CALLBACK)]
-        #if !DEBUG
-        [SuppressUnmanagedCodeSecurity]
-        #endif
-        internal delegate cef_cookie_manager_t* get_cookie_manager_delegate(cef_request_handler_t* self, cef_browser_t* browser, cef_string_t* main_url);
         
         [UnmanagedFunctionPointer(libcef.CEF_CALLBACK)]
         #if !DEBUG

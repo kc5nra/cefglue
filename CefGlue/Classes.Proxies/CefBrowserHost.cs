@@ -20,7 +20,7 @@ namespace Xilium.CefGlue
         /// will be created on the UI thread. This method can be called on any browser
         /// process thread and will not block.
         /// </summary>
-        public static void CreateBrowser(CefWindowInfo windowInfo, CefClient client, CefBrowserSettings settings, string url)
+        public static void CreateBrowser(CefWindowInfo windowInfo, CefClient client, CefBrowserSettings settings, string url, CefRequestContext requestContext)
         {
             if (windowInfo == null) throw new ArgumentNullException("windowInfo");
             if (client == null) throw new ArgumentNullException("client");
@@ -30,33 +30,44 @@ namespace Xilium.CefGlue
             var n_windowInfo = windowInfo.ToNative();
             var n_client = client.ToNative();
             var n_settings = settings.ToNative();
+            var n_requestContext = (requestContext != null) ? requestContext.ToNative() : null;
 
             fixed (char* url_ptr = url)
             {
                 cef_string_t n_url = new cef_string_t(url_ptr, url != null ? url.Length : 0);
-                var n_success = cef_browser_host_t.create_browser(n_windowInfo, n_client, &n_url, n_settings);
+                var n_success = cef_browser_host_t.create_browser(n_windowInfo, n_client, &n_url, n_settings, n_requestContext);
                 if (n_success != 1) throw ExceptionBuilder.FailedToCreateBrowser();
             }
 
             // TODO: free n_ structs ?
         }
 
+        public static void CreateBrowser(CefWindowInfo windowInfo, CefClient client, CefBrowserSettings settings, Uri url, CefRequestContext requestContext)
+        {
+            CreateBrowser(windowInfo, client, settings, url.ToString(), requestContext);
+        }
+
+        public static void CreateBrowser(CefWindowInfo windowInfo, CefClient client, CefBrowserSettings settings, CefRequestContext requestContext)
+        {
+            CreateBrowser(windowInfo, client, settings, string.Empty, requestContext);
+        }
+
         public static void CreateBrowser(CefWindowInfo windowInfo, CefClient client, CefBrowserSettings settings, Uri url)
         {
-            CreateBrowser(windowInfo, client, settings, url.ToString());
+            CreateBrowser(windowInfo, client, settings, url.ToString(), null);
         }
 
         public static void CreateBrowser(CefWindowInfo windowInfo, CefClient client, CefBrowserSettings settings)
         {
-            CreateBrowser(windowInfo, client, settings, string.Empty);
+            CreateBrowser(windowInfo, client, settings, string.Empty, null);
         }
-
+        
         /// <summary>
         /// Create a new browser window using the window parameters specified by
         /// |windowInfo|. This method can only be called on the browser process UI
         /// thread.
         /// </summary>
-        public static CefBrowser CreateBrowserSync(CefWindowInfo windowInfo, CefClient client, CefBrowserSettings settings, string url)
+        public static CefBrowser CreateBrowserSync(CefWindowInfo windowInfo, CefClient client, CefBrowserSettings settings, string url, CefRequestContext requestContext)
         {
             if (windowInfo == null) throw new ArgumentNullException("windowInfo");
             if (client == null) throw new ArgumentNullException("client");
@@ -66,25 +77,36 @@ namespace Xilium.CefGlue
             var n_windowInfo = windowInfo.ToNative();
             var n_client = client.ToNative();
             var n_settings = settings.ToNative();
+            var n_requestContext = (requestContext != null) ? requestContext.ToNative() : null;
 
             fixed (char* url_ptr = url)
             {
                 cef_string_t n_url = new cef_string_t(url_ptr, url != null ? url.Length : 0);
-                var n_browser = cef_browser_host_t.create_browser_sync(n_windowInfo, n_client, &n_url, n_settings);
+                var n_browser = cef_browser_host_t.create_browser_sync(n_windowInfo, n_client, &n_url, n_settings, n_requestContext);
                 return CefBrowser.FromNative(n_browser);
             }
 
             // TODO: free n_ structs ?
         }
 
-        public static CefBrowser CreateBrowserSync(CefWindowInfo windowInfo, CefClient client, CefBrowserSettings settings, Uri url)
+        public static CefBrowser CreateBrowserSync(CefWindowInfo windowInfo, CefClient client, CefBrowserSettings settings, Uri url, CefRequestContext requestContext)
         {
-            return CreateBrowserSync(windowInfo, client, settings, url.ToString());
+            return CreateBrowserSync(windowInfo, client, settings, url.ToString(), requestContext);
         }
 
-        public static CefBrowser CreateBrowserSync(CefWindowInfo windowInfo, CefClient client, CefBrowserSettings settings)
+        public static CefBrowser CreateBrowserSync(CefWindowInfo windowInfo, CefClient client, CefBrowserSettings settings, CefRequestContext requestContext)
         {
-            return CreateBrowserSync(windowInfo, client, settings, string.Empty);
+            return CreateBrowserSync(windowInfo, client, settings, string.Empty, requestContext);
+        }
+
+        public static void CreateBrowserSync(CefWindowInfo windowInfo, CefClient client, CefBrowserSettings settings, Uri url)
+        {
+            CreateBrowserSync(windowInfo, client, settings, url.ToString(), null);
+        }
+
+        public static void CreateBrowserSync(CefWindowInfo windowInfo, CefClient client, CefBrowserSettings settings)
+        {
+            CreateBrowserSync(windowInfo, client, settings, string.Empty, null);
         }
 
 

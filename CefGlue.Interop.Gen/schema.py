@@ -71,6 +71,7 @@ c2cs_types = {
     # platform dependend structs
     'cef_main_args_t': 'cef_main_args_t',
     'cef_window_info_t': 'cef_window_info_t',
+    'cef_text_input_context_t': 'object'
     }
 
 c2cs_platform_retval = {
@@ -114,7 +115,8 @@ c2cs_enumtypes = {
     'cef_navigation_type_t': 'CefNavigationType',
     'cef_mouse_button_type_t': 'CefMouseButtonType',
     'cef_paint_element_type_t': 'CefPaintElementType',
-    }
+    'cef_drag_operations_mask_t': 'CefDragOperationsMask',
+};
 
 c2cs_structtypes = { }
 
