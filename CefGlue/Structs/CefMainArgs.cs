@@ -10,13 +10,20 @@
 
     public sealed unsafe class CefMainArgs
     {
-        private readonly Module _module;
+        private readonly IntPtr _moduleInstance;
         private readonly string[] _args;
         private IntPtr _argcArgvBlock;
 
         public CefMainArgs(string[] args)
         {
-            _module = Assembly.GetEntryAssembly().GetModules()[0];
+            _moduleInstance = Marshal.GetHINSTANCE(Assembly.GetEntryAssembly().GetModules()[0]);
+            _args = args;
+            _argcArgvBlock = IntPtr.Zero;
+        }
+
+        public CefMainArgs(IntPtr moduleInstance, string[] args)
+        {
+            _moduleInstance = moduleInstance;
             _args = args;
             _argcArgvBlock = IntPtr.Zero;
         }
@@ -40,7 +47,7 @@
         private cef_main_args_t_windows* ToNativeWindows()
         {
             var ptr = cef_main_args_t_windows.Alloc();
-            ptr->instance = Marshal.GetHINSTANCE(_module);
+            ptr->instance = _moduleInstance;
             return ptr;
         }
 

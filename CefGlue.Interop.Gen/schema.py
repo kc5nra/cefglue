@@ -116,6 +116,8 @@ c2cs_enumtypes = {
     'cef_mouse_button_type_t': 'CefMouseButtonType',
     'cef_paint_element_type_t': 'CefPaintElementType',
     'cef_drag_operations_mask_t': 'CefDragOperationsMask',
+    'cef_transition_type_t': 'CefTransitionType',
+    'cef_resource_type_t': 'CefResourceType'
 };
 
 c2cs_structtypes = { }
