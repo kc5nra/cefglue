@@ -91,6 +91,26 @@ class CefAllowCertificateErrorCallback : public virtual CefBase {
 /*--cef(source=client)--*/
 class CefRequestHandler : public virtual CefBase {
  public:
+  typedef cef_termination_status_t TerminationStatus;
+
+  ///
+  // Called on the UI thread before browser navigation. Return true to cancel
+  // the navigation or false to allow the navigation to proceed. The |request|
+  // object cannot be modified in this callback.
+  // CefLoadHandler::OnLoadingStateChange will be called twice in all cases.
+  // If the navigation is allowed CefLoadHandler::OnLoadStart and
+  // CefLoadHandler::OnLoadEnd will be called. If the navigation is canceled
+  // CefLoadHandler::OnLoadError will be called with an |errorCode| value of
+  // ERR_ABORTED.
+  ///
+  /*--cef()--*/
+  virtual bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
+                              CefRefPtr<CefFrame> frame,
+                              CefRefPtr<CefRequest> request,
+                              bool is_redirect) {
+    return false;
+  }
+
   ///
   // Called on the IO thread before a resource request is loaded. The |request|
   // object may be modified. To cancel the request return true otherwise return
@@ -176,18 +196,6 @@ class CefRequestHandler : public virtual CefBase {
                                    bool& allow_os_execution) {}
 
   ///
-  // Called on the browser process IO thread before a plugin is loaded. Return
-  // true to block loading of the plugin.
-  ///
-  /*--cef(optional_param=url,optional_param=policy_url)--*/
-  virtual bool OnBeforePluginLoad(CefRefPtr<CefBrowser> browser,
-                                  const CefString& url,
-                                  const CefString& policy_url,
-                                  CefRefPtr<CefWebPluginInfo> info) {
-    return false;
-  }
-
-  ///
   // Called on the UI thread to handle requests for URLs with an invalid
   // SSL certificate. Return true and call CefAllowCertificateErrorCallback::
   // Continue() either in this method or at a later time to continue or cancel
@@ -203,6 +211,35 @@ class CefRequestHandler : public virtual CefBase {
       CefRefPtr<CefAllowCertificateErrorCallback> callback) {
     return false;
   }
+
+  ///
+  // Called on the browser process IO thread before a plugin is loaded. Return
+  // true to block loading of the plugin.
+  ///
+  /*--cef(optional_param=url,optional_param=policy_url)--*/
+  virtual bool OnBeforePluginLoad(CefRefPtr<CefBrowser> browser,
+                                  const CefString& url,
+                                  const CefString& policy_url,
+                                  CefRefPtr<CefWebPluginInfo> info) {
+    return false;
+  }
+
+  ///
+  // Called on the browser process UI thread when a plugin has crashed.
+  // |plugin_path| is the path of the plugin that crashed.
+  ///
+  /*--cef()--*/
+  virtual void OnPluginCrashed(CefRefPtr<CefBrowser> browser,
+                               const CefString& plugin_path) {}
+
+  ///
+  // Called on the browser process UI thread when the render process
+  // terminates unexpectedly. |status| indicates how the process
+  // terminated.
+  ///
+  /*--cef()--*/
+  virtual void OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
+                                         TerminationStatus status) {}
 };
 
 #endif  // CEF_INCLUDE_CEF_REQUEST_HANDLER_H_

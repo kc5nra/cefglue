@@ -220,5 +220,21 @@ namespace Xilium.CefGlue
         {
             return false;
         }
+
+        private cef_load_handler_t* get_load_handler(cef_render_process_handler_t* self)
+        {
+            CheckSelf(self);
+
+            var result = GetLoadHandler();
+            return result != null ? result.ToNative() : null;
+        }
+
+        /// <summary>
+        /// Return the handler for browser load status events.
+        /// </summary>
+        protected virtual CefLoadHandler GetLoadHandler()
+        {
+            return null;
+        }
     }
 }

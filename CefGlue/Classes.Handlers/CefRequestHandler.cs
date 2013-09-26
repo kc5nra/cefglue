@@ -246,5 +246,57 @@ namespace Xilium.CefGlue
         {
             return false;
         }
+
+        private void on_plugin_crashed(cef_request_handler_t* self, cef_browser_t* browser, cef_string_t* plugin_path)
+        {
+            CheckSelf(self);
+
+            var m_browser = CefBrowser.FromNative(browser);
+            var m_pluginPath = cef_string_t.ToString(plugin_path);
+
+            OnPluginCrashed(m_browser, m_pluginPath);
+        }
+
+        /// <summary>
+        /// Called on the browser process UI thread when a plugin has crashed.
+        /// |plugin_path| is the path of the plugin that crashed.
+        /// </summary>
+        protected virtual void OnPluginCrashed(CefBrowser browser, string pluginPath)
+        {
+        }
+
+        private void on_render_process_terminated(cef_request_handler_t* self, cef_browser_t* browser, CefTerminationStatus status)
+        {
+            CheckSelf(self);
+
+            var m_browser = CefBrowser.FromNative(browser);
+
+            OnRenderProcessTerminated(m_browser, status);            
+        }
+
+        /// <summary>
+        /// Called on the browser process UI thread when the render process
+        /// terminates unexpectedly. |status| indicates how the process
+        /// terminated.
+        /// </summary>
+        protected virtual void OnRenderProcessTerminated(CefBrowser browser, CefTerminationStatus status)
+        {
+        }
+
+        private int on_before_browse(cef_request_handler_t* self, cef_browser_t* browser, cef_frame_t* frame, cef_request_t* request, int is_redirect)
+        {
+            CheckSelf(self);
+
+            var m_browser = CefBrowser.FromNative(browser);
+            var m_frame = CefFrame.FromNative(frame);
+            var m_request = CefRequest.FromNative(request);
+
+            return OnBeforeBrowseDelegate(m_browser, m_frame, m_request, is_redirect != 0) ? 1 : 0;
+        }
+
+        protected virtual bool OnBeforeBrowseDelegate(CefBrowser browser, CefFrame frame, CefRequest request, bool isRedirect)
+        {
+            return false;
+        }
     }
 }
