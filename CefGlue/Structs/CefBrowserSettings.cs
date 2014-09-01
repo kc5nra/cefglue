@@ -112,18 +112,6 @@
             set { cef_string_t.Copy(value, &_self->default_encoding); }
         }
 
-        /// <summary>
-        /// Location of the user style sheet that will be used for all pages. This must
-        /// be a data URL of the form "data:text/css;charset=utf-8;base64,csscontent"
-        /// where "csscontent" is the base64 encoded contents of the CSS file. Also
-        /// configurable using the "user-style-sheet-location" command-line switch.
-        /// </summary>
-        public string UserStyleSheetLocation
-        {
-            get { return cef_string_t.ToString(&_self->user_style_sheet_location); }
-            set { cef_string_t.Copy(value, &_self->user_style_sheet_location); }
-        }
-
 
         /// <summary>
         /// Controls the loading of fonts from remote sources. Also configurable using
@@ -285,16 +273,6 @@
         }
 
         /// <summary>
-        /// Controls whether the fastback (back/forward) page cache will be used. Also
-        /// configurable using the "enable-fastback" command-line switch.
-        /// </summary>
-        public CefState PageCache
-        {
-            get { return _self->page_cache; }
-            set { _self->page_cache = value; }
-        }
-
-        /// <summary>
         /// Controls whether the tab key can advance focus to links. Also configurable
         /// using the "disable-tab-to-links" command-line switch.
         /// </summary>
@@ -302,16 +280,6 @@
         {
             get { return _self->tab_to_links; }
             set { _self->tab_to_links = value; }
-        }
-
-        /// <summary>
-        /// Controls whether style sheets can be used. Also configurable using the
-        /// "disable-author-and-user-styles" command-line switch.
-        /// </summary>
-        public CefState AuthorAndUserStyles
-        {
-            get { return _self->author_and_user_styles; }
-            set { _self->author_and_user_styles = value; }
         }
 
         /// <summary>
@@ -368,13 +336,16 @@
         }
 
         /// <summary>
-        /// Controls whether developer tools (WebKit inspector) can be used. Also
-        /// configurable using the "disable-developer-tools" command-line switch.
+        /// Opaque background color used for the browser before a document is loaded
+        /// and when no document color is specified. By default the background color
+        /// will be the same as CefSettings.background_color. Only the RGB compontents
+        /// of the specified value will be used. The alpha component must greater than
+        /// 0 to enable use of the background color but will be otherwise ignored.
         /// </summary>
-        public CefState DeveloperTools
+        public CefColor BackgroundColor
         {
-            get { return _self->developer_tools; }
-            set { _self->developer_tools = value; }
+            get { return new CefColor(_self->background_color); }
+            set { _self->background_color = value.ToArgb(); }
         }
     }
 }

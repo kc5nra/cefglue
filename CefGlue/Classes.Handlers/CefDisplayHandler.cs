@@ -12,23 +12,6 @@ namespace Xilium.CefGlue
     /// </summary>
     public abstract unsafe partial class CefDisplayHandler
     {
-        private void on_loading_state_change(cef_display_handler_t* self, cef_browser_t* browser, int isLoading, int canGoBack, int canGoForward)
-        {
-            CheckSelf(self);
-
-            var mBrowser = CefBrowser.FromNative(browser);
-
-            OnLoadingStateChange(mBrowser, isLoading != 0, canGoBack != 0, canGoForward != 0);
-        }
-
-        /// <summary>
-        /// Called when the loading state has changed.
-        /// </summary>
-        protected virtual void OnLoadingStateChange(CefBrowser browser, bool isLoading, bool canGoBack, bool canGoForward)
-        {
-        }
-
-
         private void on_address_change(cef_display_handler_t* self, cef_browser_t* browser, cef_frame_t* frame, cef_string_t* url)
         {
             CheckSelf(self);
@@ -101,9 +84,8 @@ namespace Xilium.CefGlue
         }
 
         /// <summary>
-        /// Called when the browser receives a status message. |text| contains the text
-        /// that will be displayed in the status message and |type| indicates the
-        /// status message type.
+        /// Called when the browser receives a status message. |value| contains the
+        /// text that will be displayed in the status message.
         /// </summary>
         protected virtual void OnStatusMessage(CefBrowser browser, string value)
         {

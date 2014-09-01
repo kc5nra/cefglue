@@ -17,8 +17,9 @@ namespace Xilium.CefGlue
         /// <summary>
         /// Create a new browser window using the window parameters specified by
         /// |windowInfo|. All values will be copied internally and the actual window
-        /// will be created on the UI thread. This method can be called on any browser
-        /// process thread and will not block.
+        /// will be created on the UI thread. If |request_context| is empty the
+        /// global request context will be used. This method can be called on any
+        /// browser process thread and will not block.
         /// </summary>
         public static void CreateBrowser(CefWindowInfo windowInfo, CefClient client, CefBrowserSettings settings, string url, CefRequestContext requestContext)
         {
@@ -30,7 +31,7 @@ namespace Xilium.CefGlue
             var n_windowInfo = windowInfo.ToNative();
             var n_client = client.ToNative();
             var n_settings = settings.ToNative();
-            var n_requestContext = (requestContext != null) ? requestContext.ToNative() : null;
+            var n_requestContext = requestContext != null ? requestContext.ToNative() : null;
 
             fixed (char* url_ptr = url)
             {
@@ -42,9 +43,19 @@ namespace Xilium.CefGlue
             // TODO: free n_ structs ?
         }
 
+        public static void CreateBrowser(CefWindowInfo windowInfo, CefClient client, CefBrowserSettings settings, string url)
+        {
+            CreateBrowser(windowInfo, client, settings, url, null);
+        }
+
         public static void CreateBrowser(CefWindowInfo windowInfo, CefClient client, CefBrowserSettings settings, Uri url, CefRequestContext requestContext)
         {
             CreateBrowser(windowInfo, client, settings, url.ToString(), requestContext);
+        }
+
+        public static void CreateBrowser(CefWindowInfo windowInfo, CefClient client, CefBrowserSettings settings, Uri url)
+        {
+            CreateBrowser(windowInfo, client, settings, url, null);
         }
 
         public static void CreateBrowser(CefWindowInfo windowInfo, CefClient client, CefBrowserSettings settings, CefRequestContext requestContext)
@@ -52,19 +63,16 @@ namespace Xilium.CefGlue
             CreateBrowser(windowInfo, client, settings, string.Empty, requestContext);
         }
 
-        public static void CreateBrowser(CefWindowInfo windowInfo, CefClient client, CefBrowserSettings settings, Uri url)
-        {
-            CreateBrowser(windowInfo, client, settings, url.ToString(), null);
-        }
-
         public static void CreateBrowser(CefWindowInfo windowInfo, CefClient client, CefBrowserSettings settings)
         {
             CreateBrowser(windowInfo, client, settings, string.Empty, null);
         }
-        
+
+
         /// <summary>
         /// Create a new browser window using the window parameters specified by
-        /// |windowInfo|. This method can only be called on the browser process UI
+        /// |windowInfo|. If |request_context| is empty the global request context
+        /// will be used. This method can only be called on the browser process UI
         /// thread.
         /// </summary>
         public static CefBrowser CreateBrowserSync(CefWindowInfo windowInfo, CefClient client, CefBrowserSettings settings, string url, CefRequestContext requestContext)
@@ -77,7 +85,7 @@ namespace Xilium.CefGlue
             var n_windowInfo = windowInfo.ToNative();
             var n_client = client.ToNative();
             var n_settings = settings.ToNative();
-            var n_requestContext = (requestContext != null) ? requestContext.ToNative() : null;
+            var n_requestContext = requestContext != null ? requestContext.ToNative() : null;
 
             fixed (char* url_ptr = url)
             {
@@ -89,9 +97,19 @@ namespace Xilium.CefGlue
             // TODO: free n_ structs ?
         }
 
+        public static CefBrowser CreateBrowserSync(CefWindowInfo windowInfo, CefClient client, CefBrowserSettings settings, string url)
+        {
+            return CreateBrowserSync(windowInfo, client, settings, url, null);
+        }
+
         public static CefBrowser CreateBrowserSync(CefWindowInfo windowInfo, CefClient client, CefBrowserSettings settings, Uri url, CefRequestContext requestContext)
         {
             return CreateBrowserSync(windowInfo, client, settings, url.ToString(), requestContext);
+        }
+
+        public static CefBrowser CreateBrowserSync(CefWindowInfo windowInfo, CefClient client, CefBrowserSettings settings, Uri url)
+        {
+            return CreateBrowserSync(windowInfo, client, settings, url, null);
         }
 
         public static CefBrowser CreateBrowserSync(CefWindowInfo windowInfo, CefClient client, CefBrowserSettings settings, CefRequestContext requestContext)
@@ -99,14 +117,9 @@ namespace Xilium.CefGlue
             return CreateBrowserSync(windowInfo, client, settings, string.Empty, requestContext);
         }
 
-        public static void CreateBrowserSync(CefWindowInfo windowInfo, CefClient client, CefBrowserSettings settings, Uri url)
+        public static CefBrowser CreateBrowserSync(CefWindowInfo windowInfo, CefClient client, CefBrowserSettings settings)
         {
-            CreateBrowserSync(windowInfo, client, settings, url.ToString(), null);
-        }
-
-        public static void CreateBrowserSync(CefWindowInfo windowInfo, CefClient client, CefBrowserSettings settings)
-        {
-            CreateBrowserSync(windowInfo, client, settings, string.Empty, null);
+            return CreateBrowserSync(windowInfo, client, settings, string.Empty);
         }
 
 
@@ -116,17 +129,6 @@ namespace Xilium.CefGlue
         public CefBrowser GetBrowser()
         {
             return CefBrowser.FromNative(cef_browser_host_t.get_browser(_self));
-        }
-
-        /// <summary>
-        /// Call this method before destroying a contained browser window. This method
-        /// performs any internal cleanup that may be needed before the browser window
-        /// is destroyed. See CefLifeSpanHandler::DoClose() documentation for
-        /// additional usage information.
-        /// </summary>
-        public void ParentWindowWillClose()
-        {
-            cef_browser_host_t.parent_window_will_close(_self);
         }
 
         /// <summary>
@@ -145,12 +147,20 @@ namespace Xilium.CefGlue
         }
 
         /// <summary>
-        /// Set focus for the browser window. If |enable| is true focus will be set to
-        /// the window. Otherwise, focus will be removed.
+        /// Set whether the browser is focused.
         /// </summary>
-        public void SetFocus(bool enable)
+        public void SetFocus(bool focus)
         {
-            cef_browser_host_t.set_focus(_self, enable ? 1 : 0);
+            cef_browser_host_t.set_focus(_self, focus ? 1 : 0);
+        }
+
+        /// <summary>
+        /// Set whether the window containing the browser is visible
+        /// (minimized/unminimized, app hidden/unhidden, etc). Only used on Mac OS X.
+        /// </summary>
+        public void SetWindowVisibility(bool visible)
+        {
+            cef_browser_host_t.set_window_visibility(_self, visible ? 1 : 0);
         }
 
         /// <summary>
@@ -181,19 +191,17 @@ namespace Xilium.CefGlue
                 );
         }
 
+
         /// <summary>
-        /// Returns the DevTools URL for this browser. If |http_scheme| is true the
-        /// returned URL will use the http scheme instead of the chrome-devtools
-        /// scheme. Remote debugging can be enabled by specifying the
-        /// "remote-debugging-port" command-line flag or by setting the
-        /// CefSettings.remote_debugging_port value. If remote debugging is not enabled
-        /// this method will return an empty string.
+        /// Returns the request context for this browser.
         /// </summary>
-        public string GetDevToolsUrl(bool httpScheme)
+        public CefRequestContext GetRequestContext()
         {
-            var n_url = cef_browser_host_t.get_dev_tools_url(_self, httpScheme ? 1 : 0);
-            return cef_string_userfree.ToString(n_url);
+            return CefRequestContext.FromNative(
+                cef_browser_host_t.get_request_context(_self)
+                );
         }
+
 
         /// <summary>
         /// Get the current zoom level. The default zoom level is 0.0. This method can
@@ -255,6 +263,56 @@ namespace Xilium.CefGlue
 
                 cef_browser_host_t.start_download(_self, &n_url);
             }
+        }
+
+        /// <summary>
+        /// Print the current browser contents.
+        /// </summary>
+        public void Print()
+        {
+            cef_browser_host_t.print(_self);
+        }
+
+        /// <summary>
+        /// Search for |searchText|. |identifier| can be used to have multiple searches
+        /// running simultaniously. |forward| indicates whether to search forward or
+        /// backward within the page. |matchCase| indicates whether the search should
+        /// be case-sensitive. |findNext| indicates whether this is the first request
+        /// or a follow-up.
+        /// </summary>
+        public void Find(int identifier, string searchText, bool forward, bool matchCase, bool findNext)
+        {
+            fixed (char* searchText_ptr = searchText)
+            {
+                var n_searchText = new cef_string_t(searchText_ptr, searchText.Length);
+
+                cef_browser_host_t.find(_self, identifier, &n_searchText, forward ? 1 : 0, matchCase ? 1 : 0, findNext ? 1 : 0);
+            }
+        }
+
+        /// <summary>
+        /// Cancel all searches that are currently going on.
+        /// </summary>
+        public void StopFinding(bool clearSelection)
+        {
+            cef_browser_host_t.stop_finding(_self, clearSelection ? 1 : 0);
+        }
+
+        /// <summary>
+        /// Open developer tools in its own window.
+        /// </summary>
+        public void ShowDevTools(CefWindowInfo windowInfo, CefClient client, CefBrowserSettings browserSettings)
+        {
+            cef_browser_host_t.show_dev_tools(_self, windowInfo.ToNative(), client.ToNative(), browserSettings.ToNative());
+        }
+
+        /// <summary>
+        /// Explicitly close the developer tools window if one exists for this browser
+        /// instance.
+        /// </summary>
+        public void CloseDevTools()
+        {
+            cef_browser_host_t.close_dev_tools(_self);
         }
 
         /// <summary>
@@ -397,9 +455,9 @@ namespace Xilium.CefGlue
         /// Get the NSTextInputContext implementation for enabling IME on Mac when
         /// window rendering is disabled.
         /// </summary>
-        public void GetNSTextInputContext()
+        public IntPtr GetNSTextInputContext()
         {
-            cef_browser_host_t.get_nstext_input_context(_self);
+            return cef_browser_host_t.get_nstext_input_context(_self);
         }
 
         /// <summary>
@@ -419,5 +477,85 @@ namespace Xilium.CefGlue
             cef_browser_host_t.handle_key_event_after_text_input_client(_self, keyEvent);
         }
 
+        /// <summary>
+        /// Call this method when the user drags the mouse into the web view (before
+        /// calling DragTargetDragOver/DragTargetLeave/DragTargetDrop).
+        /// |drag_data| should not contain file contents as this type of data is not
+        /// allowed to be dragged into the web view. File contents can be removed using
+        /// CefDragData::ResetFileContents (for example, if |drag_data| comes from
+        /// CefRenderHandler::StartDragging).
+        /// This method is only used when window rendering is disabled.
+        /// </summary>
+        public void DragTargetDragEnter(CefDragData dragData, CefMouseEvent mouseEvent, CefDragOperationsMask allowedOps)
+        {
+            var n_mouseEvent = mouseEvent.ToNative();
+            cef_browser_host_t.drag_target_drag_enter(_self,
+                dragData.ToNative(),
+                &n_mouseEvent,
+                allowedOps);
+        }
+
+        /// <summary>
+        /// Call this method each time the mouse is moved across the web view during
+        /// a drag operation (after calling DragTargetDragEnter and before calling
+        /// DragTargetDragLeave/DragTargetDrop).
+        /// This method is only used when window rendering is disabled.
+        /// </summary>
+        public void DragTargetDragOver(CefMouseEvent mouseEvent, CefDragOperationsMask allowedOps)
+        {
+            var n_mouseEvent = mouseEvent.ToNative();
+            cef_browser_host_t.drag_target_drag_over(_self, &n_mouseEvent, allowedOps);
+        }
+
+        /// <summary>
+        /// Call this method when the user drags the mouse out of the web view (after
+        /// calling DragTargetDragEnter).
+        /// This method is only used when window rendering is disabled.
+        /// </summary>
+        public void DragTargetDragLeave()
+        {
+            cef_browser_host_t.drag_target_drag_leave(_self);
+        }
+
+        /// <summary>
+        /// Call this method when the user completes the drag operation by dropping
+        /// the object onto the web view (after calling DragTargetDragEnter).
+        /// The object being dropped is |drag_data|, given as an argument to
+        /// the previous DragTargetDragEnter call.
+        /// This method is only used when window rendering is disabled.
+        /// </summary>
+        public void DragTargetDrop(CefMouseEvent mouseEvent)
+        {
+            var n_mouseEvent = mouseEvent.ToNative();
+            cef_browser_host_t.drag_target_drop(_self, &n_mouseEvent);
+        }
+
+        /// <summary>
+        /// Call this method when the drag operation started by a
+        /// CefRenderHandler::StartDragging call has ended either in a drop or
+        /// by being cancelled. |x| and |y| are mouse coordinates relative to the
+        /// upper-left corner of the view. If the web view is both the drag source
+        /// and the drag target then all DragTarget* methods should be called before
+        /// DragSource* mthods.
+        /// This method is only used when window rendering is disabled.
+        /// </summary>
+        public void DragSourceEndedAt(int x, int y, CefDragOperationsMask op)
+        {
+            cef_browser_host_t.drag_source_ended_at(_self, x, y, op);
+        }
+
+        /// <summary>
+        /// Call this method when the drag operation started by a
+        /// CefRenderHandler::StartDragging call has completed. This method may be
+        /// called immediately without first calling DragSourceEndedAt to cancel a
+        /// drag operation. If the web view is both the drag source and the drag
+        /// target then all DragTarget* methods should be called before DragSource*
+        /// mthods.
+        /// This method is only used when window rendering is disabled.
+        /// </summary>
+        public void DragSourceSystemDragEnded()
+        {
+            cef_browser_host_t.drag_source_system_drag_ended(_self);
+        }
     }
 }

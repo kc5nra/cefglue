@@ -4,9 +4,13 @@
     using System.Collections.Generic;
     using System.Text;
     using System.Diagnostics;
+    using Xilium.CefGlue.Wrapper;
+    using System.Threading;
 
     public abstract class DemoApp : IDisposable
     {
+        public static CefMessageRouterBrowserSide BrowserMessageRouter { get; private set; }
+
         private const string DumpRequestDomain = "dump-request.demoapp.cefglue.xilium.local";
 
         private IMainView _mainView;
@@ -43,11 +47,26 @@
 
         public int Run(string[] args)
         {
+            try
+            {
+                return RunInternal(args);
+            }
+            catch (Exception ex)
+            {
+                PlatformMessageBox(ex.ToString());
+                return 1;
+            }
+        }
+
+        protected bool MultiThreadedMessageLoop { get; private set; }
+
+        private int RunInternal(string[] args)
+        {
             CefRuntime.Load();
 
             var settings = new CefSettings();
-            settings.MultiThreadedMessageLoop = CefRuntime.Platform == CefRuntimePlatform.Windows;
-            settings.ReleaseDCheckEnabled = true;
+            settings.MultiThreadedMessageLoop = MultiThreadedMessageLoop = CefRuntime.Platform == CefRuntimePlatform.Windows;
+            settings.SingleProcess = false;
             settings.LogSeverity = CefLogSeverity.Verbose;
             settings.LogFile = "cef.log";
             settings.ResourcesDirPath = System.IO.Path.GetDirectoryName(new Uri(System.Reflection.Assembly.GetEntryAssembly().CodeBase).LocalPath);
@@ -74,9 +93,8 @@
 
             CefRuntime.Initialize(mainArgs, settings, app);
 
-            // register custom scheme handler
-            CefRuntime.RegisterSchemeHandlerFactory("http", DumpRequestDomain, new DemoAppSchemeHandlerFactory());
-            // CefRuntime.AddCrossOriginWhitelistEntry("http://localhost", "http", "", true);
+            RegisterSchemes();
+            RegisterMessageRouter();
 
             PlatformInitialize();
 
@@ -131,6 +149,8 @@
 
         protected abstract IMainView CreateMainView(MenuItem[] menu);
 
+        protected abstract void PlatformMessageBox(string message);
+
         #region Commands
 
         private void FileNewTabCommand(object sender, EventArgs e)
@@ -178,8 +198,15 @@
 
         private void OpenDeveloperToolsCommand(object sender, EventArgs e)
         {
-            var devToolsUrl = MainView.CurrentBrowser.GetHost().GetDevToolsUrl(true);
-            Process.Start(devToolsUrl);
+            var host = MainView.CurrentBrowser.GetHost();
+            var wi = CefWindowInfo.Create();
+            wi.SetAsPopup(IntPtr.Zero, "DevTools");
+            host.ShowDevTools(wi, new DevToolsWebClient(), new CefBrowserSettings());
+            // Process.Start(devToolsUrl);
+        }
+
+        private class DevToolsWebClient : CefClient
+        {
         }
 
         private void SendKeyEventCommand(object sender, EventArgs e)
@@ -208,5 +235,99 @@
 
         #endregion
 
+        private void RegisterSchemes()
+        {
+            // register custom scheme handler
+            CefRuntime.RegisterSchemeHandlerFactory("http", DumpRequestDomain, new DemoAppSchemeHandlerFactory());
+            // CefRuntime.AddCrossOriginWhitelistEntry("http://localhost", "http", "", true);
+
+        }
+
+        private void RegisterMessageRouter()
+        {
+            if (!CefRuntime.CurrentlyOn(CefThreadId.UI))
+            {
+                PostTask(CefThreadId.UI, this.RegisterMessageRouter);
+                return;
+            }
+
+            // window.cefQuery({ request: 'my_request', onSuccess: function(response) { console.log(response); }, onFailure: function(err,msg) { console.log(err, msg); } });
+            DemoApp.BrowserMessageRouter = new CefMessageRouterBrowserSide(new CefMessageRouterConfig());
+            DemoApp.BrowserMessageRouter.AddHandler(new DemoMessageRouterHandler());
+        }
+
+        private class DemoMessageRouterHandler : CefMessageRouterBrowserSide.Handler
+        {
+            public override bool OnQuery(CefBrowser browser, CefFrame frame, long queryId, string request, bool persistent, CefMessageRouterBrowserSide.Callback callback)
+            {
+                if (request == "wait5")
+                {
+                    new Thread(() =>
+                    {
+                        Thread.Sleep(5000);
+                        callback.Success("success! responded after 5 sec timeout."); // TODO: at this place crash can occurs, if application closed
+                    }).Start();
+                    return true;
+                }
+
+                if (request == "wait5f")
+                {
+                    new Thread(() =>
+                    {
+                        Thread.Sleep(5000);
+                        callback.Failure(12345, "success! responded after 5 sec timeout. responded as failure.");
+                    }).Start();
+                    return true;
+                }
+
+                if (request == "wait30")
+                {
+                    new Thread(() =>
+                    {
+                        Thread.Sleep(30000);
+                        callback.Success("success! responded after 30 sec timeout.");
+                    }).Start();
+                    return true;
+                }
+
+                if (request == "noanswer")
+                {
+                    return true;
+                }
+
+                var chars = request.ToCharArray();
+                Array.Reverse(chars);
+                var response = new string(chars);
+                callback.Success(response);
+                return true;
+            }
+
+            public override void OnQueryCanceled(CefBrowser browser, CefFrame frame, long queryId)
+            {
+            }
+        }
+
+        public static void PostTask(CefThreadId threadId, Action action)
+        {
+            CefRuntime.PostTask(threadId, new ActionTask(action));
+        }
+
+        internal sealed class ActionTask : CefTask
+        {
+            public Action _action;
+
+            public ActionTask(Action action)
+            {
+                _action = action;
+            }
+
+            protected override void Execute()
+            {
+                _action();
+                _action = null;
+            }
+        }
+
+        public delegate void Action();
     }
 }

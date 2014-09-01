@@ -8,10 +8,31 @@ namespace Xilium.CefGlue
 
     /// <summary>
     /// Implement this interface to handle events related to browser load status. The
-    /// methods of this class will be called on the UI thread.
+    /// methods of this class will be called on the browser process UI thread or
+    /// render process main thread (TID_RENDERER).
     /// </summary>
     public abstract unsafe partial class CefLoadHandler
     {
+        private void on_loading_state_change(cef_load_handler_t* self, cef_browser_t* browser, int isLoading, int canGoBack, int canGoForward)
+        {
+            CheckSelf(self);
+
+            var mBrowser = CefBrowser.FromNative(browser);
+
+            OnLoadingStateChange(mBrowser, isLoading != 0, canGoBack != 0, canGoForward != 0);
+        }
+
+        /// <summary>
+        /// Called when the loading state has changed. This callback will be executed
+        /// twice -- once when loading is initiated either programmatically or by user
+        /// action, and once when loading is terminated due to completion, cancellation
+        /// of failure.
+        /// </summary>
+        protected virtual void OnLoadingStateChange(CefBrowser browser, bool isLoading, bool canGoBack, bool canGoForward)
+        {
+        }
+
+
         private void on_load_start(cef_load_handler_t* self, cef_browser_t* browser, cef_frame_t* frame)
         {
             CheckSelf(self);
@@ -28,7 +49,8 @@ namespace Xilium.CefGlue
         /// main frame. Multiple frames may be loading at the same time. Sub-frames may
         /// start or continue loading after the main frame load has ended. This method
         /// may not be called for a particular frame if the load request for that frame
-        /// fails.
+        /// fails. For notification of overall browser load status use
+        /// OnLoadingStateChange instead.
         /// </summary>
         protected virtual void OnLoadStart(CefBrowser browser, CefFrame frame)
         {
@@ -71,27 +93,13 @@ namespace Xilium.CefGlue
         }
 
         /// <summary>
-        /// Called when the browser fails to load a resource. |errorCode| is the error
-        /// code number, |errorText| is the error text and and |failedUrl| is the URL
-        /// that failed to load. See net\base\net_error_list.h for complete
-        /// descriptions of the error codes.
+        /// Called when the resource load for a navigation fails or is canceled.
+        /// |errorCode| is the error code number, |errorText| is the error text and
+        /// |failedUrl| is the URL that failed to load. See net\base\net_error_list.h
+        /// for complete descriptions of the error codes.
         /// </summary>
         protected virtual void OnLoadError(CefBrowser browser, CefFrame frame, CefErrorCode errorCode, string errorText, string failedUrl)
         {
-        }
-
-        private void on_loading_state_change(cef_load_handler_t* self, cef_browser_t* browser, int isLoading, int canGoBack, int canGoForward)
-        {
-            CheckSelf(self);
-
-            var m_browser = CefBrowser.FromNative(browser);
-            
-            OnLoadingStateChange(m_browser, isLoading != 0, canGoBack != 0, canGoForward != 0);
-        }
-
-        protected virtual void OnLoadingStateChange(CefBrowser browser, bool isLoading, bool canGoBack, bool canGoForward)
-        {
-
         }
     }
 }

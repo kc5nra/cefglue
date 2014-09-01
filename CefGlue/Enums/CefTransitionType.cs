@@ -1,28 +1,31 @@
 ﻿//
 // This file manually written from cef/include/internal/cef_types.h.
-// C API name: cef_transition_type_t.
+// C API name: cef_resource_type_t.
 //
 namespace Xilium.CefGlue
 {
+    using System;
+
     /// <summary>
     /// Transition type for a request. Made up of one source value and 0 or more
     /// qualifiers.
     /// </summary>
-    public enum CefTransitionType
+    [Flags]
+    public enum CefTransitionType : uint
     {
         /// <summary>
         /// Source is a link click or the JavaScript window.open function. This is
         /// also the default value for requests like sub-resource loads that are not
         /// navigations.
         /// </summary>
-        TT_LINK = 0,
+        Link = 0,
 
         /// <summary>
         /// Source is some other "explicit" navigation action such as creating a new
         /// browser or using the LoadURL function. This is also the default value
         /// for navigations where the actual type is unknown.
         /// </summary>
-        TT_EXPLICIT = 1,
+        Explicit = 1,
 
         /// <summary>
         /// Source is a subframe navigation. This is any content that is automatically
@@ -31,7 +34,7 @@ namespace Xilium.CefGlue
         /// The user may not even realize the content in these pages is a separate
         /// frame, so may not care about the URL.
         /// </summary>
-        TT_AUTO_SUBFRAME = 3,
+        AutoSubframe = 3,
 
         /// <summary>
         /// Source is a subframe navigation explicitly requested by the user that will
@@ -40,71 +43,69 @@ namespace Xilium.CefGlue
         /// the background because the user probably cares about the fact that this
         /// link was loaded.
         /// </summary>
-        TT_MANUAL_SUBFRAME = 4,
+        ManualSubframe = 4,
 
         /// <summary>
         /// Source is a form submission by the user. NOTE: In some situations
         /// submitting a form does not result in this transition type. This can happen
         /// if the form uses a script to submit the contents.
         /// </summary>
-        TT_FORM_SUBMIT = 7,
+        FormSubmit = 7,
 
         /// <summary>
         /// Source is a "reload" of the page via the Reload function or by re-visiting
         /// the same URL. NOTE: This is distinct from the concept of whether a
         /// particular load uses "reload semantics" (i.e. bypasses cached data).
         /// </summary>
-        TT_RELOAD = 8,
+        Reload = 8,
 
         /// <summary>
         /// General mask defining the bits used for the source values.
         /// </summary>
-        TT_SOURCE_MASK = 0xFF,
+        SourceMask = 0xFF,
 
+        // Qualifiers.
         // Any of the core values above can be augmented by one or more qualifiers.
         // These qualifiers further define the transition.
-        #region Qualifiers.
-        
+
         /// <summary>
         /// Attempted to visit a URL but was blocked.
         /// </summary>
-        TT_BLOCKED_FLAG = 0x00800000,
+        BlockedFlag = 0x00800000,
 
         /// <summary>
         /// Used the Forward or Back function to navigate among browsing history.
         /// </summary>
-        TT_FORWARD_BACK_FLAG = 0x01000000,
+        ForwardBackFlag = 0x01000000,
 
         /// <summary>
         /// The beginning of a navigation chain.
         /// </summary>
-        TT_CHAIN_START_FLAG = 0x10000000,
+        ChainStartFlag = 0x10000000,
 
         /// <summary>
         /// The last transition in a redirect chain.
         /// </summary>
-        TT_CHAIN_END_FLAG = 0x20000000,
+        ChainEndFlag = 0x20000000,
 
         /// <summary>
         /// Redirects caused by JavaScript or a meta refresh tag on the page.
         /// </summary>
-        TT_CLIENT_REDIRECT_FLAG = 0x40000000,
+        ClientRedirectFlag = 0x40000000,
 
         /// <summary>
         /// Redirects sent from the server by HTTP headers.
         /// </summary>
-        TT_SERVER_REDIRECT_FLAG = unchecked((int)0x80000000),
+        ServerRedirectFlag = 0x80000000,
 
         /// <summary>
         /// Used to test whether a transition involves a redirect.
         /// </summary>
-        TT_IS_REDIRECT_MASK = unchecked((int)0xC0000000),
+        IsRedirectMask = 0xC0000000,
 
         /// <summary>
         /// General mask defining the bits used for the qualifiers.
         /// </summary>
-        TT_QUALIFIER_MASK = unchecked((int)0xFFFFFF00),
-
-        #endregion
+        QualifierMask = 0xFFFFFF00,
     }
 }

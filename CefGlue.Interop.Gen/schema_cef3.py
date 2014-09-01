@@ -90,11 +90,14 @@ classdef = {
     'CefCompletionHandler': { 'role': ROLE_HANDLER },
     # R1177
     'CefAllowCertificateErrorCallback': { 'role': ROLE_PROXY },
-    #R1293
+    # R
     'CefDragData': { 'role': ROLE_PROXY },
     'CefDragHandler': { 'role': ROLE_HANDLER },
-    #R1424
+    # 1650.1503
     'CefRequestContext': { 'role': ROLE_PROXY },
-    'CefRequestContextHandler': { 'role': ROLE_HANDLER }
-
-}
+    'CefRequestContextHandler': { 'role': ROLE_HANDLER, 'reversible': True },
+    # 1750
+    'CefEndTracingCallback': { 'role': ROLE_HANDLER },
+    # 1916
+    'CefCompletionCallback': { 'role': ROLE_HANDLER },
+    }

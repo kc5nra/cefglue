@@ -31,7 +31,7 @@
                 return 3;
             }
 
-            var mainArgs = new CefMainArgs(args);
+            var mainArgs = new CefMainArgs(IntPtr.Zero, args);
             var cefApp = new SampleCefApp();
 
             var exitCode = CefRuntime.ExecuteProcess(mainArgs, cefApp);
@@ -41,6 +41,7 @@
             {
                 // BrowserSubprocessPath = browserSubprocessPath,
                 SingleProcess = false,
+                WindowlessRenderingEnabled = true,
                 MultiThreadedMessageLoop = true,
                 LogSeverity = CefLogSeverity.Verbose,
                 LogFile = "cef.log",

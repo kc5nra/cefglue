@@ -12,6 +12,11 @@
     /// </summary>
     public sealed unsafe class CefSettings
     {
+        public CefSettings()
+        {
+            BackgroundColor = new CefColor(255, 255, 255, 255);
+        }
+
         /// <summary>
         /// Set to <c>true</c> to use a single process for the browser and renderer. This
         /// run mode is not officially supported by Chromium and is less stable than
@@ -19,6 +24,13 @@
         /// command-line switch.
         /// </summary>
         public bool SingleProcess { get; set; }
+
+        /// <summary>
+        /// Set to <c>true</c> to disable the sandbox for sub-processes. See
+        /// cef_sandbox_win.h for requirements to enable the sandbox on Windows. Also
+        /// configurable using the "no-sandbox" command-line switch.
+        /// </summary>
+        public bool NoSandbox { get; set; }
 
         /// <summary>
         /// The path to a separate executable that will be launched for sub-processes.
@@ -36,6 +48,13 @@
         public bool MultiThreadedMessageLoop { get; set; }
 
         /// <summary>
+        /// Set to true (1) to enable windowless (off-screen) rendering support. Do not
+        /// enable this value if the application does not use windowless rendering as
+        /// it may reduce rendering performance on some systems.
+        /// </summary>
+        public bool WindowlessRenderingEnabled { get; set; }
+
+        /// <summary>
         /// Set to <c>true</c> to disable configuration of browser process features using
         /// standard CEF and Chromium command-line arguments. Configuration can still
         /// be specified using CEF data structures or via the
@@ -45,8 +64,9 @@
 
         /// <summary>
         /// The location where cache data will be stored on disk. If empty an in-memory
-        /// cache will be used. HTML5 databases such as localStorage will only persist
-        /// across sessions if a cache path is specified.
+        /// cache will be used for some features and a temporary disk cache for others.
+        /// HTML5 databases such as localStorage will only persist across sessions if a
+        /// cache path is specified.
         /// </summary>
         public string CachePath { get; set; }
 
@@ -99,12 +119,6 @@
         /// "disable".
         /// </summary>
         public CefLogSeverity LogSeverity { get; set; }
-
-        /// <summary>
-        /// Enable DCHECK in release mode to ease debugging.  Also configurable using the
-        /// "enable-release-dcheck" command-line switch.
-        /// </summary>
-        public bool ReleaseDCheckEnabled { get; set; }
 
         /// <summary>
         /// Custom flags that will be used when initializing the V8 JavaScript engine.
@@ -189,28 +203,39 @@
         /// </summary>
         public bool IgnoreCertificateErrors { get; set; }
 
+        /// <summary>
+        /// Opaque background color used for accelerated content. By default the
+        /// background color will be white. Only the RGB compontents of the specified
+        /// value will be used. The alpha component must greater than 0 to enable use
+        /// of the background color but will be otherwise ignored.
+        /// </summary>
+        public CefColor BackgroundColor { get; set; }
+
         internal cef_settings_t* ToNative()
         {
             var ptr = cef_settings_t.Alloc();
-            ptr->single_process = SingleProcess;
+            ptr->single_process = SingleProcess ? 1 : 0;
+            ptr->no_sandbox = NoSandbox ? 1 : 0;
             cef_string_t.Copy(BrowserSubprocessPath, &ptr->browser_subprocess_path);
-            ptr->multi_threaded_message_loop = MultiThreadedMessageLoop;
-            ptr->command_line_args_disabled = CommandLineArgsDisabled;
+            ptr->multi_threaded_message_loop = MultiThreadedMessageLoop ? 1 : 0;
+            ptr->windowless_rendering_enabled = WindowlessRenderingEnabled ? 1 : 0;
+            ptr->command_line_args_disabled = CommandLineArgsDisabled ? 1 : 0;
             cef_string_t.Copy(CachePath, &ptr->cache_path);
+            ptr->persist_session_cookies = PersistSessionCookies ? 1 : 0;
             cef_string_t.Copy(UserAgent, &ptr->user_agent);
             cef_string_t.Copy(ProductVersion, &ptr->product_version);
             cef_string_t.Copy(Locale, &ptr->locale);
             cef_string_t.Copy(LogFile, &ptr->log_file);
             ptr->log_severity = LogSeverity;
-            ptr->release_dcheck_enabled = ReleaseDCheckEnabled;
             cef_string_t.Copy(JavaScriptFlags, &ptr->javascript_flags);
             cef_string_t.Copy(ResourcesDirPath, &ptr->resources_dir_path);
             cef_string_t.Copy(LocalesDirPath, &ptr->locales_dir_path);
-            ptr->pack_loading_disabled = PackLoadingDisabled;
+            ptr->pack_loading_disabled = PackLoadingDisabled ? 1 : 0;
             ptr->remote_debugging_port = RemoteDebuggingPort;
             ptr->uncaught_exception_stack_size = UncaughtExceptionStackSize;
             ptr->context_safety_implementation = (int)ContextSafetyImplementation;
-            ptr->ignore_certificate_errors = IgnoreCertificateErrors;
+            ptr->ignore_certificate_errors = IgnoreCertificateErrors ? 1 : 0;
+            ptr->background_color = BackgroundColor.ToArgb();
             return ptr;
         }
 

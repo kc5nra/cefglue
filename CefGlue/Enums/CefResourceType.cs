@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
+﻿//
+// This file manually written from cef/include/internal/cef_types.h.
+// C API name: cef_resource_type_t.
+//
 namespace Xilium.CefGlue
 {
     /// <summary>
@@ -12,72 +12,72 @@ namespace Xilium.CefGlue
         /// <summary>
         /// Top level page.
         /// </summary>
-        RT_MAIN_FRAME = 0,
+        MainFrame = 0,
 
         /// <summary>
         /// Frame or iframe.
         /// </summary>
-        RT_SUB_FRAME,
+        SubFrame,
 
         /// <summary>
         /// CSS stylesheet.
         /// </summary>
-        RT_STYLESHEET,
+        Stylesheet,
 
         /// <summary>
         /// External script.
         /// </summary>
-        RT_SCRIPT,
+        Script,
 
         /// <summary>
         /// Image (jpg/gif/png/etc).
         /// </summary>
-        RT_IMAGE,
+        Image,
 
         /// <summary>
         /// Font.
         /// </summary>
-        RT_FONT_RESOURCE,
+        FontResource,
 
         /// <summary>
         /// Some other subresource. This is the default type if the actual type is
         /// unknown.
         /// </summary>
-        RT_SUB_RESOURCE,
+        SubResource,
 
         /// <summary>
         /// Object (or embed) tag for a plugin, or a resource that a plugin requested.
         /// </summary>
-        RT_OBJECT,
+        Object,
 
         /// <summary>
         /// Media resource.
         /// </summary>
-        RT_MEDIA,
+        Media,
 
         /// <summary>
         /// Main resource of a dedicated worker.
         /// </summary>
-        RT_WORKER,
+        Worker,
 
         /// <summary>
         /// Main resource of a shared worker.
         /// </summary>
-        RT_SHARED_WORKER,
+        SharedWorker,
 
         /// <summary>
         /// Explicitly requested prefetch.
         /// </summary>
-        RT_PREFETCH,
+        Prefetch,
 
         /// <summary>
         /// Favicon.
         /// </summary>
-        RT_FAVICON,
+        Favicon,
 
         /// <summary>
         /// XMLHttpRequest.
         /// </summary>
-        RT_XHR,
-    };
+        Xhr,
+    }
 }

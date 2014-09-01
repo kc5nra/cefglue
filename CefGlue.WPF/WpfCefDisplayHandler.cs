@@ -13,9 +13,9 @@ namespace Xilium.CefGlue.WPF
             _owner = owner;
         }
 
-        protected override void OnLoadingStateChange(CefBrowser browser, bool isLoading, bool canGoBack, bool canGoForward)
-        {
-        }
+        //protected override void OnLoadingStateChange(CefBrowser browser, bool isLoading, bool canGoBack, bool canGoForward)
+        //{
+        //}
 
         protected override void OnAddressChange(CefBrowser browser, CefFrame frame, string url)
         {
@@ -27,7 +27,7 @@ namespace Xilium.CefGlue.WPF
 
         protected override bool OnTooltip(CefBrowser browser, string text)
         {
-            return false;
+            return _owner.OnTooltip(text);
         }
 
         protected override void OnStatusMessage(CefBrowser browser, string value)

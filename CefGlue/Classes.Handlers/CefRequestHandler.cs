@@ -12,6 +12,36 @@ namespace Xilium.CefGlue
     /// </summary>
     public abstract unsafe partial class CefRequestHandler
     {
+        private int on_before_browse(cef_request_handler_t* self, cef_browser_t* browser, cef_frame_t* frame, cef_request_t* request, int is_redirect)
+        {
+            CheckSelf(self);
+
+            var m_browser = CefBrowser.FromNative(browser);
+            var m_frame = CefFrame.FromNative(frame);
+            var m_request = CefRequest.FromNative(request);
+            var m_isRedirect = is_redirect != 0;
+
+            var result = OnBeforeBrowse(m_browser, m_frame, m_request, m_isRedirect);
+
+            return result ? 1 : 0;
+        }
+
+        /// <summary>
+        /// Called on the UI thread before browser navigation. Return true to cancel
+        /// the navigation or false to allow the navigation to proceed. The |request|
+        /// object cannot be modified in this callback.
+        /// CefLoadHandler::OnLoadingStateChange will be called twice in all cases.
+        /// If the navigation is allowed CefLoadHandler::OnLoadStart and
+        /// CefLoadHandler::OnLoadEnd will be called. If the navigation is canceled
+        /// CefLoadHandler::OnLoadError will be called with an |errorCode| value of
+        /// ERR_ABORTED.
+        /// </summary>
+        protected virtual bool OnBeforeBrowse(CefBrowser browser, CefFrame frame, CefRequest request, bool isRedirect)
+        {
+            return false;
+        }
+
+
         private int on_before_resource_load(cef_request_handler_t* self, cef_browser_t* browser, cef_frame_t* frame, cef_request_t* request)
         {
             CheckSelf(self);
@@ -143,32 +173,11 @@ namespace Xilium.CefGlue
         /// this method or at a later time to grant or deny the request. Return false
         /// to cancel the request.
         /// </summary>
-        protected abstract bool OnQuotaRequest(CefBrowser browser, string originUrl, long newSize, CefQuotaCallback callback);
-
-
-        private cef_cookie_manager_t* get_cookie_manager(cef_request_handler_t* self, cef_browser_t* browser, cef_string_t* main_url)
+        protected virtual bool OnQuotaRequest(CefBrowser browser, string originUrl, long newSize, CefQuotaCallback callback)
         {
-            CheckSelf(self);
-
-            var m_browser = CefBrowser.FromNative(browser);
-            var m_mainUrl = cef_string_t.ToString(main_url);
-
-            var manager = GetCookieManager(m_browser, m_mainUrl);
-
-            return manager != null ? manager.ToNative() : null;
+            callback.Continue(true);
+            return true;
         }
-
-        /// <summary>
-        /// Called on the IO thread to retrieve the cookie manager. |main_url| is the
-        /// URL of the top-level frame. Cookies managers can be unique per browser or
-        /// shared across multiple browsers. The global cookie manager will be used if
-        /// this method returns NULL.
-        /// </summary>
-        protected virtual CefCookieManager GetCookieManager(CefBrowser browser, string mainUrl)
-        {
-            return null;
-        }
-
 
 
         private void on_protocol_execution(cef_request_handler_t* self, cef_browser_t* browser, cef_string_t* url, int* allow_os_execution)
@@ -197,6 +206,33 @@ namespace Xilium.CefGlue
         }
 
 
+        private int on_certificate_error(cef_request_handler_t* self, CefErrorCode cert_error, cef_string_t* request_url, cef_allow_certificate_error_callback_t* callback)
+        {
+            CheckSelf(self);
+
+            var m_request_url = cef_string_t.ToString(request_url);
+            var m_callback = CefAllowCertificateErrorCallback.FromNativeOrNull(callback);
+
+            var result = OnCertificateError(cert_error, m_request_url, m_callback);
+
+            return result ? 1 : 0;
+        }
+
+        /// <summary>
+        /// Called on the UI thread to handle requests for URLs with an invalid
+        /// SSL certificate. Return true and call CefAllowCertificateErrorCallback::
+        /// Continue() either in this method or at a later time to continue or cancel
+        /// the request. Return false to cancel the request immediately. If |callback|
+        /// is empty the error cannot be recovered from and the request will be
+        /// canceled automatically. If CefSettings.ignore_certificate_errors is set
+        /// all invalid certificates will be accepted without calling this method.
+        /// </summary>
+        protected virtual bool OnCertificateError(CefErrorCode certError, string requestUrl, CefAllowCertificateErrorCallback callback)
+        {
+            return false;
+        }
+
+
         private int on_before_plugin_load(cef_request_handler_t* self, cef_browser_t* browser, cef_string_t* url, cef_string_t* policy_url, cef_web_plugin_info_t* info)
         {
             CheckSelf(self);
@@ -221,40 +257,14 @@ namespace Xilium.CefGlue
         }
 
 
-        private int on_certificate_error(cef_request_handler_t* self, CefErrorCode cert_error, cef_string_t* request_url, cef_allow_certificate_error_callback_t* callback)
-        {
-            CheckSelf(self);
-
-            var m_requestUrl = cef_string_t.ToString(request_url);
-            var m_callback = CefAllowCertificateErrorCallback.FromNative(callback);
-
-            var m_result = OnCertificateError(cert_error, m_requestUrl, m_callback);
-
-            return m_result ? 1 : 0;
-        }
-
-        /// <summary>
-        /// Called on the UI thread to handle requests for URLs with an invalid
-        /// SSL certificate. Return true and call CefAllowCertificateErrorCallback::
-        /// Continue() either in this method or at a later time to continue or cancel
-        /// the request. Return false to cancel the request immediately. If |callback|
-        /// is empty the error cannot be recovered from and the request will be
-        /// canceled automatically. If CefSettings.ignore_certificate_errors is set
-        /// all invalid certificates will be accepted without calling this method.
-        /// </summary>
-        protected virtual bool OnCertificateError(CefErrorCode certError, string requestUrl, CefAllowCertificateErrorCallback callback)
-        {
-            return false;
-        }
-
         private void on_plugin_crashed(cef_request_handler_t* self, cef_browser_t* browser, cef_string_t* plugin_path)
         {
             CheckSelf(self);
 
             var m_browser = CefBrowser.FromNative(browser);
-            var m_pluginPath = cef_string_t.ToString(plugin_path);
+            var m_plugin_path = cef_string_t.ToString(plugin_path);
 
-            OnPluginCrashed(m_browser, m_pluginPath);
+            OnPluginCrashed(m_browser, m_plugin_path);
         }
 
         /// <summary>
@@ -265,13 +275,14 @@ namespace Xilium.CefGlue
         {
         }
 
+
         private void on_render_process_terminated(cef_request_handler_t* self, cef_browser_t* browser, CefTerminationStatus status)
         {
             CheckSelf(self);
 
             var m_browser = CefBrowser.FromNative(browser);
 
-            OnRenderProcessTerminated(m_browser, status);            
+            OnRenderProcessTerminated(m_browser, status);
         }
 
         /// <summary>
@@ -281,22 +292,6 @@ namespace Xilium.CefGlue
         /// </summary>
         protected virtual void OnRenderProcessTerminated(CefBrowser browser, CefTerminationStatus status)
         {
-        }
-
-        private int on_before_browse(cef_request_handler_t* self, cef_browser_t* browser, cef_frame_t* frame, cef_request_t* request, int is_redirect)
-        {
-            CheckSelf(self);
-
-            var m_browser = CefBrowser.FromNative(browser);
-            var m_frame = CefFrame.FromNative(frame);
-            var m_request = CefRequest.FromNative(request);
-
-            return OnBeforeBrowseDelegate(m_browser, m_frame, m_request, is_redirect != 0) ? 1 : 0;
-        }
-
-        protected virtual bool OnBeforeBrowseDelegate(CefBrowser browser, CefFrame frame, CefRequest request, bool isRedirect)
-        {
-            return false;
         }
     }
 }

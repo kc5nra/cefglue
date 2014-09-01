@@ -1,4 +1,4 @@
-﻿namespace Xilium.CefGlue
+namespace Xilium.CefGlue
 {
     using System;
     using System.Collections.Generic;
@@ -15,9 +15,9 @@
         {
             CheckSelf(self);
 
-            var m_cookieManager = GetCookieManager();
+            var result = GetCookieManager();
 
-            return (m_cookieManager != null) ? m_cookieManager.ToNative() : null;
+            return result != null ? result.ToNative() : null;
         }
 
         /// <summary>
@@ -26,5 +26,4 @@
         /// </summary>
         protected abstract CefCookieManager GetCookieManager();
     }
-
 }
