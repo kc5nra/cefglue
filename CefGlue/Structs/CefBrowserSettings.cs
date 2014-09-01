@@ -35,6 +35,18 @@
             return _self;
         }
 
+        ///
+        /// The maximum rate in frames per second (fps) that CefRenderHandler::OnPaint
+        /// will be called for a windowless browser. The actual fps may be lower if
+        /// the browser cannot generate frames at the requested rate. The minimum
+        /// value is 1 and the maximum value is 60 (default 30).
+        ///
+        public int WindowlessFrameRate
+        {
+            get { return _self->windowless_frame_rate; }
+            set { _self->windowless_frame_rate = value; }
+        }
+
         // The below values map to WebPreferences settings.
 
         #region Font Settings
@@ -99,8 +111,7 @@
             set { _self->minimum_logical_font_size = value; }
         }
 
-        #endregion
-
+        #endregion Font Settings
 
         /// <summary>
         /// Default encoding for Web content. If empty "ISO-8859-1" will be used. Also
@@ -111,7 +122,6 @@
             get { return cef_string_t.ToString(&_self->default_encoding); }
             set { cef_string_t.Copy(value, &_self->default_encoding); }
         }
-
 
         /// <summary>
         /// Controls the loading of fonts from remote sources. Also configurable using
@@ -321,18 +331,6 @@
         {
             get { return _self->webgl; }
             set { _self->webgl = value; }
-        }
-
-        /// <summary>
-        /// Controls whether content that depends on accelerated compositing can be
-        /// used. Note that accelerated compositing requires hardware support and may
-        /// not work on all systems even when enabled. Also configurable using the
-        /// "disable-accelerated-compositing" command-line switch.
-        /// </summary>
-        public CefState AcceleratedCompositing
-        {
-            get { return _self->accelerated_compositing; }
-            set { _self->accelerated_compositing = value; }
         }
 
         /// <summary>

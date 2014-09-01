@@ -142,7 +142,7 @@
             }
         };
 
-        #endregion
+        #endregion V8HandlerImpl
 
         private readonly CefMessageRouterConfig _config;
 
@@ -227,8 +227,6 @@
             {
                 return _browserRequestInfoMap.Count();
             }
-
-            return 0;
         }
 
         #region The below methods should be called from other CEF handlers. They must be called exactly as documented for the router to function correctly.
@@ -316,7 +314,7 @@
             return false;
         }
 
-        #endregion
+        #endregion The below methods should be called from other CEF handlers. They must be called exactly as documented for the router to function correctly.
 
         // Structure representing a pending request.
         internal class RequestInfo
@@ -388,7 +386,7 @@
 
         // If |requestId| is kReservedId all requests associated with |contextId|
         // will be canceled, otherwise only the specified |requestId| will be
-        // canceled. Returns true if any request was canceled. 
+        // canceled. Returns true if any request was canceled.
         private bool SendCancel(CefBrowser browser, long frameId, int contextId, int requestId)
         {
             Helpers.RequireRendererThread();
@@ -440,7 +438,6 @@
             return false;
         }
 
-
         // Execute the onSuccess JavaScript callback.
         private void ExecuteSuccessCallback(int browserId, int contextId, int requestId, string response)
         {
@@ -461,7 +458,7 @@
         }
 
         // Execute the onFailure JavaScript callback.
-        void ExecuteFailureCallback(int browserId, int contextId, int requestId,
+        private void ExecuteFailureCallback(int browserId, int contextId, int requestId,
                                     int errorCode, string errorMessage)
         {
             Helpers.RequireRendererThread();
@@ -530,6 +527,5 @@
             if (_contextMap.TryGetValue(contextId, out context)) return context;
             else return null;
         }
-
     }
 }

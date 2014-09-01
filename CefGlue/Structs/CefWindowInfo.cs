@@ -93,6 +93,7 @@
         public bool Disposed { get { return _disposed; } }
 
         internal abstract cef_window_info_t* GetNativePointer();
+
         protected internal abstract void DisposeNativePointer();
 
         // Common properties for all platforms
@@ -108,14 +109,20 @@
 
         // Common properties for windows & macosx
         public abstract string Name { get; set; }
+
         public abstract int X { get; set; }
+
         public abstract int Y { get; set; }
+
         public abstract int Width { get; set; }
+
         public abstract int Height { get; set; }
 
         // Windows-specific
         public abstract WindowStyle Style { get; set; }
+
         public abstract WindowStyleEx StyleEx { get; set; }
+
         public abstract IntPtr MenuHandle { get; set; }
 
         // Mac-specific

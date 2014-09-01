@@ -27,7 +27,6 @@ namespace Xilium.CefGlue.Interop
         internal IntPtr _get_media_state_flags;
         internal IntPtr _get_selection_text;
         internal IntPtr _is_editable;
-        internal IntPtr _is_speech_input_enabled;
         internal IntPtr _get_edit_state_flags;
         
         [UnmanagedFunctionPointer(libcef.CEF_CALLBACK)]
@@ -131,12 +130,6 @@ namespace Xilium.CefGlue.Interop
         [SuppressUnmanagedCodeSecurity]
         #endif
         private delegate int is_editable_delegate(cef_context_menu_params_t* self);
-        
-        [UnmanagedFunctionPointer(libcef.CEF_CALLBACK)]
-        #if !DEBUG
-        [SuppressUnmanagedCodeSecurity]
-        #endif
-        private delegate int is_speech_input_enabled_delegate(cef_context_menu_params_t* self);
         
         [UnmanagedFunctionPointer(libcef.CEF_CALLBACK)]
         #if !DEBUG
@@ -433,36 +426,19 @@ namespace Xilium.CefGlue.Interop
             return d(self);
         }
         
-        // IsSpeechInputEnabled
-        private static IntPtr _p11;
-        private static is_speech_input_enabled_delegate _d11;
-        
-        public static int is_speech_input_enabled(cef_context_menu_params_t* self)
-        {
-            is_speech_input_enabled_delegate d;
-            var p = self->_is_speech_input_enabled;
-            if (p == _p11) { d = _d11; }
-            else
-            {
-                d = (is_speech_input_enabled_delegate)Marshal.GetDelegateForFunctionPointer(p, typeof(is_speech_input_enabled_delegate));
-                if (_p11 == IntPtr.Zero) { _d11 = d; _p11 = p; }
-            }
-            return d(self);
-        }
-        
         // GetEditStateFlags
-        private static IntPtr _p12;
-        private static get_edit_state_flags_delegate _d12;
+        private static IntPtr _p11;
+        private static get_edit_state_flags_delegate _d11;
         
         public static CefContextMenuEditStateFlags get_edit_state_flags(cef_context_menu_params_t* self)
         {
             get_edit_state_flags_delegate d;
             var p = self->_get_edit_state_flags;
-            if (p == _p12) { d = _d12; }
+            if (p == _p11) { d = _d11; }
             else
             {
                 d = (get_edit_state_flags_delegate)Marshal.GetDelegateForFunctionPointer(p, typeof(get_edit_state_flags_delegate));
-                if (_p12 == IntPtr.Zero) { _d12 = d; _p12 = p; }
+                if (_p11 == IntPtr.Zero) { _d11 = d; _p11 = p; }
             }
             return d(self);
         }

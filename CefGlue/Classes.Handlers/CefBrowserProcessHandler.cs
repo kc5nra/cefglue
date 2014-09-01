@@ -27,7 +27,6 @@ namespace Xilium.CefGlue
         {
         }
 
-
         private void on_before_child_process_launch(cef_browser_process_handler_t* self, cef_command_line_t* command_line)
         {
             CheckSelf(self);
@@ -48,7 +47,6 @@ namespace Xilium.CefGlue
         {
         }
 
-
         private void on_render_process_thread_created(cef_browser_process_handler_t* self, cef_list_value_t* extra_info)
         {
             CheckSelf(self);
@@ -67,6 +65,18 @@ namespace Xilium.CefGlue
         /// </summary>
         protected virtual void OnRenderProcessThreadCreated(CefListValue extraInfo)
         {
+        }
+
+        private cef_print_handler_t* get_print_handler(cef_browser_process_handler_t* self)
+        {
+            CheckSelf(self);
+            var result = GetPrintHandler();
+            return result != null ? result.ToNative() : null;
+        }
+
+        protected virtual CefPrintHandler GetPrintHandler()
+        {
+            return null;
         }
     }
 }

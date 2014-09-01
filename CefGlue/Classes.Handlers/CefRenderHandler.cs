@@ -42,7 +42,6 @@ namespace Xilium.CefGlue
             return false;
         }
 
-
         private int get_view_rect(cef_render_handler_t* self, cef_browser_t* browser, cef_rect_t* rect)
         {
             CheckSelf(self);
@@ -73,7 +72,6 @@ namespace Xilium.CefGlue
             return false;
         }
 
-
         private int get_screen_point(cef_render_handler_t* self, cef_browser_t* browser, int viewX, int viewY, int* screenX, int* screenY)
         {
             CheckSelf(self);
@@ -103,7 +101,6 @@ namespace Xilium.CefGlue
             return false;
         }
 
-
         private int get_screen_info(cef_render_handler_t* self, cef_browser_t* browser, cef_screen_info_t* screen_info)
         {
             CheckSelf(self);
@@ -129,7 +126,6 @@ namespace Xilium.CefGlue
         /// </summary>
         protected abstract bool GetScreenInfo(CefBrowser browser, CefScreenInfo screenInfo);
 
-
         private void on_popup_show(cef_render_handler_t* self, cef_browser_t* browser, int show)
         {
             CheckSelf(self);
@@ -147,7 +143,6 @@ namespace Xilium.CefGlue
         {
         }
 
-
         private void on_popup_size(cef_render_handler_t* self, cef_browser_t* browser, cef_rect_t* rect)
         {
             CheckSelf(self);
@@ -163,7 +158,6 @@ namespace Xilium.CefGlue
         /// contains the new location and size.
         /// </summary>
         protected abstract void OnPopupSize(CefBrowser browser, CefRectangle rect);
-
 
         private void on_paint(cef_render_handler_t* self, cef_browser_t* browser, CefPaintElementType type, UIntPtr dirtyRectsCount, cef_rect_t* dirtyRects, void* buffer, int width, int height)
         {
@@ -198,7 +192,6 @@ namespace Xilium.CefGlue
         /// </summary>
         protected abstract void OnPaint(CefBrowser browser, CefPaintElementType type, CefRectangle[] dirtyRects, IntPtr buffer, int width, int height);
 
-
         private void on_cursor_change(cef_render_handler_t* self, cef_browser_t* browser, IntPtr cursor)
         {
             CheckSelf(self);
@@ -212,7 +205,6 @@ namespace Xilium.CefGlue
         /// Called when the browser window's cursor has changed.
         /// </summary>
         protected abstract void OnCursorChange(CefBrowser browser, IntPtr cursorHandle);
-
 
         private int start_dragging(cef_render_handler_t* self, cef_browser_t* browser, cef_drag_data_t* drag_data, CefDragOperationsMask allowed_ops, int x, int y)
         {
@@ -243,7 +235,6 @@ namespace Xilium.CefGlue
             return false;
         }
 
-
         private void update_drag_cursor(cef_render_handler_t* self, cef_browser_t* browser, CefDragOperationsMask operation)
         {
             CheckSelf(self);
@@ -255,13 +246,12 @@ namespace Xilium.CefGlue
 
         /// <summary>
         /// Called when the web view wants to update the mouse cursor during a
-        /// drag & drop operation. |operation| describes the allowed operation
+        /// drag &amp; drop operation. |operation| describes the allowed operation
         /// (none, move, copy, link).
         /// </summary>
         protected virtual void UpdateDragCursor(CefBrowser browser, CefDragOperationsMask operation)
         {
         }
-
 
         private void on_scroll_offset_changed(cef_render_handler_t* self, cef_browser_t* browser)
         {

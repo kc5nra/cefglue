@@ -68,7 +68,6 @@ namespace Xilium.CefGlue
             CreateBrowser(windowInfo, client, settings, string.Empty, null);
         }
 
-
         /// <summary>
         /// Create a new browser window using the window parameters specified by
         /// |windowInfo|. If |request_context| is empty the global request context
@@ -121,7 +120,6 @@ namespace Xilium.CefGlue
         {
             return CreateBrowserSync(windowInfo, client, settings, string.Empty);
         }
-
 
         /// <summary>
         /// Returns the hosted browser object.
@@ -191,7 +189,6 @@ namespace Xilium.CefGlue
                 );
         }
 
-
         /// <summary>
         /// Returns the request context for this browser.
         /// </summary>
@@ -201,7 +198,6 @@ namespace Xilium.CefGlue
                 cef_browser_host_t.get_request_context(_self)
                 );
         }
-
 
         /// <summary>
         /// Get the current zoom level. The default zoom level is 0.0. This method can
@@ -384,10 +380,9 @@ namespace Xilium.CefGlue
         /// CefRenderHandler::OnPaint asynchronously with the updated regions. This
         /// method is only used when window rendering is disabled.
         /// </summary>
-        public void Invalidate(CefRectangle dirtyRect, CefPaintElementType type)
+        public void Invalidate(CefPaintElementType type)
         {
-            var n_dirtyRect = new cef_rect_t(dirtyRect.X, dirtyRect.Y, dirtyRect.Width, dirtyRect.Height);
-            cef_browser_host_t.invalidate(_self, &n_dirtyRect, type);
+            cef_browser_host_t.invalidate(_self, type);
         }
 
         /// <summary>

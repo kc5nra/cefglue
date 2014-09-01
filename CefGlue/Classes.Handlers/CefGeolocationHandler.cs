@@ -13,7 +13,7 @@ namespace Xilium.CefGlue
     /// </summary>
     public abstract unsafe partial class CefGeolocationHandler
     {
-        private void on_request_geolocation_permission(cef_geolocation_handler_t* self, cef_browser_t* browser, cef_string_t* requesting_url, int request_id, cef_geolocation_callback_t* callback)
+        private int on_request_geolocation_permission(cef_geolocation_handler_t* self, cef_browser_t* browser, cef_string_t* requesting_url, int request_id, cef_geolocation_callback_t* callback)
         {
             CheckSelf(self);
 
@@ -21,7 +21,7 @@ namespace Xilium.CefGlue
             var m_requesting_url = cef_string_t.ToString(requesting_url);
             var m_callback = CefGeolocationCallback.FromNative(callback);
 
-            OnRequestGeolocationPermission(m_browser, m_requesting_url, request_id, m_callback);
+            return OnRequestGeolocationPermission(m_browser, m_requesting_url, request_id, m_callback);
         }
 
         /// <summary>
@@ -30,8 +30,7 @@ namespace Xilium.CefGlue
         /// unique ID for the permission request. Call CefGeolocationCallback::Continue
         /// to allow or deny the permission request.
         /// </summary>
-        protected abstract void OnRequestGeolocationPermission(CefBrowser browser, string requestingUrl, int requestId, CefGeolocationCallback callback);
-
+        protected abstract int OnRequestGeolocationPermission(CefBrowser browser, string requestingUrl, int requestId, CefGeolocationCallback callback);
 
         private void on_cancel_geolocation_permission(cef_geolocation_handler_t* self, cef_browser_t* browser, cef_string_t* requesting_url, int request_id)
         {

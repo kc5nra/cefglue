@@ -221,7 +221,7 @@ namespace Xilium.CefGlue.Interop
         #if !DEBUG
         [SuppressUnmanagedCodeSecurity]
         #endif
-        private delegate void invalidate_delegate(cef_browser_host_t* self, cef_rect_t* dirtyRect, CefPaintElementType type);
+        private delegate void invalidate_delegate(cef_browser_host_t* self, CefPaintElementType type);
         
         [UnmanagedFunctionPointer(libcef.CEF_CALLBACK)]
         #if !DEBUG
@@ -759,7 +759,7 @@ namespace Xilium.CefGlue.Interop
         private static IntPtr _p1a;
         private static invalidate_delegate _d1a;
         
-        public static void invalidate(cef_browser_host_t* self, cef_rect_t* dirtyRect, CefPaintElementType type)
+        public static void invalidate(cef_browser_host_t* self, CefPaintElementType type)
         {
             invalidate_delegate d;
             var p = self->_invalidate;
@@ -769,7 +769,7 @@ namespace Xilium.CefGlue.Interop
                 d = (invalidate_delegate)Marshal.GetDelegateForFunctionPointer(p, typeof(invalidate_delegate));
                 if (_p1a == IntPtr.Zero) { _d1a = d; _p1a = p; }
             }
-            d(self, dirtyRect, type);
+            d(self, type);
         }
         
         // SendKeyEvent

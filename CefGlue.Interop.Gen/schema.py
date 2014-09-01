@@ -67,6 +67,8 @@ c2cs_types = {
     'cef_rect_t': 'cef_rect_t',
     'cef_mouse_event_t': 'cef_mouse_event_t',
     'cef_screen_info_t': 'cef_screen_info_t',
+    'cef_size_t': 'cef_size_t',
+    'cef_page_range_t': 'cef_page_range_t',
 
     # platform dependend structs
     'cef_main_args_t': 'cef_main_args_t',
@@ -118,7 +120,10 @@ c2cs_enumtypes = {
     'cef_paint_element_type_t': 'CefPaintElementType',
     'cef_drag_operations_mask_t': 'CefDragOperationsMask',
     'cef_resource_type_t': 'CefResourceType',
-    'cef_transition_type_t': 'CefTransitionType'
+    'cef_transition_type_t': 'CefTransitionType',
+    #2062
+    'cef_color_model_t': 'CefColorModel',
+    'cef_duplex_mode_t': 'CefDuplexMode',
     }
 
 c2cs_structtypes = { }
